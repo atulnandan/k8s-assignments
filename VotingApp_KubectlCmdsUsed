@@ -1,0 +1,81 @@
+1. Cmds used during assignment:
+--------------------------------
+
+kubectl apply -f .
+kubectl get po -o wide
+kubectl logs vote-94849dc97-jd7md
+kubectl logs redis-868d64d78-pwtj8
+kubectl logs worker-dd46d7584-jn67h
+kubectl logs db-b54cd94f4-p82ch
+kubectl logs result-5d57b59f4b-8fz6w
+kubectl get rs
+kubectl get svc
+kubectl get deploy
+
+
+kubectl delete pod vote-94849dc97-jd7md
+
+kubectl logs vote-94849dc97-slpsn
+kubectl logs worker-dd46d7584-jn67h
+kubectl logs db-b54cd94f4-p82ch
+kubectl logs result-5d57b59f4b-8fz6w
+kubectl get rs
+
+
+kubectl delete pod worker-dd46d7584-jn67h
+kubectl get po
+
+
+kubectl logs vote-94849dc97-slpsn
+kubectl logs worker-dd46d7584-x5pxx
+kubectl logs db-b54cd94f4-p82ch
+kubectl logs result-5d57b59f4b-8fz6w
+kubectl get rs
+
+
+kubectl delete pod db-b54cd94f4-p82ch
+
+kubectl get po -o wide
+
+
+kubectl logs vote-94849dc97-slpsn
+kubectl logs worker-dd46d7584-x5pxx
+kubectl logs db-b54cd94f4-2lnps
+kubectl logs result-5d57b59f4b-8fz6w
+kubectl get rs
+
+
+
+
+kubectl describe pod vote-94849dc97-slpsn
+kubectl describe svc vote
+kubectl describe deployment vote
+kubectl describe replicaset vote-94849dc97
+
+
+Also two new observations regarding services:
+
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl get svc
+NAME     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+db       ClusterIP   10.97.116.155   <none>        5432/TCP         3h12m
+redis    ClusterIP   10.97.145.193   <none>        6379/TCP         3h12m
+result   NodePort    10.101.94.177   <none>        5001:31007/TCP   3h12m
+vote     NodePort    10.102.49.48    <none>        5000:31006/TCP   3h12m
+
+
+First, only result and vote app has nodeport where as others have cluster IP. Reason being only these two app has requirement of external access whereas other two apps need access within cluster.
+
+
+Second, worker app doesn't have service layer configured around it. Other 4 layers have service layer configured around it. A pod needs service layer if some entity outside pod wants to access this service. Vote and result app needs service layer because of need of external access. Redis app needs service layer as worker app wants to access it's information and push it to DB app. DB app needs service layer as result app wants to access it's information. Since no app needs info from worker app, hence worker app doesn't need service configured arund it.
+
+
+
+
+
+
+
+
+
+
+
