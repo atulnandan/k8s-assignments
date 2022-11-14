@@ -1,0 +1,84 @@
+1. Some jargons (just names are enough- dont need sentences) that you learnt from the  Training session.
+---------------------------------------------------------------------------------------------------------
+
+Following jargons learnt:
+
+Docker
+
+Virtualization
+Containerization
+Docker Engine
+Docker Registry
+Docker Daemon
+Docker Client
+docket build
+docker pull
+docker push
+docker create
+docker run
+docker commit
+docket start
+docker stop
+docker exec
+docker rm
+docker attach
+docker ps
+docker logs
+docker inspect
+docker images
+docker rmi
+docker images
+docker tag
+Layering of Images
+
+
+
+
+Kubernetes
+
+Microservice Architecture
+Master node
+Kubectl
+API server
+Controller-manager
+scheduler
+Worker node
+Kubelet
+Pod
+Kubernetes obects: Containers, Pods, Nodes, Deployments, Controllers, Services, Volumes, Jobs, Labels, Namespaces.
+Replication Controllers
+ReplicationSet Controllers
+DaemonSet Controllers
+Batch Job Controllers
+Cron Job Controllers
+Deployment Controllers
+Node Controller
+Service Controller
+Endpoints Controller
+Namespace Controller
+Pod Port Forwarding
+ClusterIP
+NodePort
+LoadBalancer
+Pod Volume
+HostPath Volume
+GitRepo Volume
+Persistent Volume(PV)
+Persistent Volume Claim(PVC)
+StatefulSet Controllers
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
