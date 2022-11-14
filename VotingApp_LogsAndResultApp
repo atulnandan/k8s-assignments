@@ -1,0 +1,325 @@
+1. Snapshot of logs:
+---------------------
+
+
+
+
+Before deletion:
+-----------------
+a) Voting pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs vote-94849dc97-jd7md
+[2022-11-14 02:38:48 +0000] [1] [INFO] Starting gunicorn 19.6.0
+[2022-11-14 02:38:48 +0000] [1] [INFO] Listening at: http://0.0.0.0:80 (1)
+[2022-11-14 02:38:48 +0000] [1] [INFO] Using worker: sync
+[2022-11-14 02:38:48 +0000] [11] [INFO] Booting worker with pid: 11
+[2022-11-14 02:38:48 +0000] [12] [INFO] Booting worker with pid: 12
+[2022-11-14 02:38:49 +0000] [13] [INFO] Booting worker with pid: 13
+[2022-11-14 02:38:49 +0000] [14] [INFO] Booting worker with pid: 14
+192.168.141.192 - - [14/Nov/2022:02:40:53 +0000] "GET / HTTP/1.1" 200 1293 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.141.192 - - [14/Nov/2022:02:41:14 +0000] "GET /static/stylesheets/style.css HTTP/1.1" 200 - "http://18.143.157.128:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.141.192 - - [14/Nov/2022:02:41:31 +0000] "POST / HTTP/1.1" 200 1696 "http://18.143.157.128:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+172.31.14.212 - - [14/Nov/2022:02:42:01 +0000] "GET / HTTP/1.1" 200 1293 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+172.31.14.212 - - [14/Nov/2022:02:42:01 +0000] "GET /static/stylesheets/style.css HTTP/1.1" 200 - "http://13.214.182.48:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+[2022-11-14 02:42:02 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:14)
+[2022-11-14 02:42:02 +0000] [14] [INFO] Worker exiting (pid: 14)
+
+
+
+b) Worker pod logs: 
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs worker-dd46d7584-jn67h
+Connected to db
+Found redis at 10.97.145.193
+Connecting to redis
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'b' by '897d4ae9e583ddc3'
+Processing vote for 'a' by 'c3a943ef04361e7d'
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'a' by '47e415a026a655a8'
+
+
+c) DB pod logs:
+
+LOG:  database system was shut down at 2022-11-14 02:38:43 UTC
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+
+
+
+d) Result pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs result-5d57b59f4b-8fz6w
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated bodyParser: use individual json/urlencoded middlewares at server.js:67:9
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated undefined extended: provide extended option at ../node_modules/body-parser/index.js:105:29
+App running on port 80
+Waiting for db
+Connected to db
+
+
+
+
+After deletion of voting pod:
+-----------------------------
+Nothing changed in front and and unix. Replica set made sure that another voting pod came up. Hence no change in user voting app and result app functionality.
+
+
+a) Voting pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs vote-94849dc97-slpsn
+[2022-11-14 03:08:39 +0000] [1] [INFO] Starting gunicorn 19.6.0
+[2022-11-14 03:08:39 +0000] [1] [INFO] Listening at: http://0.0.0.0:80 (1)
+[2022-11-14 03:08:39 +0000] [1] [INFO] Using worker: sync
+[2022-11-14 03:08:39 +0000] [11] [INFO] Booting worker with pid: 11
+[2022-11-14 03:08:39 +0000] [12] [INFO] Booting worker with pid: 12
+[2022-11-14 03:08:39 +0000] [13] [INFO] Booting worker with pid: 13
+[2022-11-14 03:08:39 +0000] [14] [INFO] Booting worker with pid: 14
+192.168.141.192 - - [14/Nov/2022:03:11:58 +0000] "POST / HTTP/1.1" 200 1696 "http://18.143.157.128:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+172.31.14.212 - - [14/Nov/2022:03:12:08 +0000] "POST / HTTP/1.1" 200 1696 "http://13.214.182.48:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.50.128 - - [14/Nov/2022:03:12:15 +0000] "POST / HTTP/1.1" 200 1696 "http://18.141.215.5:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+
+
+
+
+b) Worker pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs worker-dd46d7584-jn67h
+Connected to db
+Found redis at 10.97.145.193
+Connecting to redis
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'b' by '897d4ae9e583ddc3'
+Processing vote for 'a' by 'c3a943ef04361e7d'
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'a' by '47e415a026a655a8'
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'b' by '897d4ae9e583ddc3'
+Processing vote for 'a' by '47e415a026a655a8'
+
+
+c) DB pod logs:
+
+LOG:  database system was shut down at 2022-11-14 02:38:43 UTC
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(897d4ae9e583ddc3) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(47e415a026a655a8) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+
+
+
+d) Result pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs result-5d57b59f4b-8fz6w
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated bodyParser: use individual json/urlencoded middlewares at server.js:67:9
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated undefined extended: provide extended option at ../node_modules/body-parser/index.js:105:29
+App running on port 80
+Waiting for db
+Connected to db
+
+
+
+
+After deletion of worker pod:
+-----------------------------
+Replica set made sure that another worker pod came up. Hence no change in user voting app functionality and result app functionality. Also pods who got deleted and their new instances came up, their old logs are lost.
+
+
+a) Voting pod logs:
+
+[2022-11-14 03:12:28 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:14)
+[2022-11-14 03:12:28 +0000] [14] [INFO] Worker exiting (pid: 14)
+[2022-11-14 03:12:28 +0000] [31] [INFO] Booting worker with pid: 31
+[2022-11-14 03:12:39 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:11)
+[2022-11-14 03:12:39 +0000] [11] [INFO] Worker exiting (pid: 11)
+[2022-11-14 03:12:39 +0000] [36] [INFO] Booting worker with pid: 36
+[2022-11-14 03:12:45 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:12)
+[2022-11-14 03:12:45 +0000] [12] [INFO] Worker exiting (pid: 12)
+[2022-11-14 03:12:46 +0000] [41] [INFO] Booting worker with pid: 41
+192.168.141.192 - - [14/Nov/2022:03:26:27 +0000] "POST / HTTP/1.1" 200 1696 "http://18.143.157.128:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+172.31.14.212 - - [14/Nov/2022:03:26:39 +0000] "POST / HTTP/1.1" 200 1696 "http://13.214.182.48:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.50.128 - - [14/Nov/2022:03:26:44 +0000] "POST / HTTP/1.1" 200 1696 "http://18.141.215.5:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.50.128 - - [14/Nov/2022:03:26:56 +0000] "POST / HTTP/1.1" 200 1696 "http://18.141.215.5:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+[2022-11-14 03:27:09 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:13)
+[2022-11-14 03:27:09 +0000] [13] [INFO] Worker exiting (pid: 13)
+[2022-11-14 03:27:10 +0000] [46] [INFO] Booting worker with pid: 46
+[2022-11-14 03:27:26 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:36)
+[2022-11-14 03:27:26 +0000] [36] [INFO] Worker exiting (pid: 36)
+[2022-11-14 03:27:26 +0000] [51] [INFO] Booting worker with pid: 51
+
+
+
+
+b) Worker pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs worker-dd46d7584-x5pxx
+Connected to db
+Found redis at 10.97.145.193
+Connecting to redis
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'b' by '897d4ae9e583ddc3'
+Processing vote for 'a' by '47e415a026a655a8'
+Processing vote for 'b' by '47e415a026a655a8'
+
+
+
+c) DB pod logs:
+
+LOG:  could not receive data from client: Connection reset by peer
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(897d4ae9e583ddc3) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(47e415a026a655a8) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(47e415a026a655a8) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+
+
+d) Result pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs result-5d57b59f4b-8fz6w
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated bodyParser: use individual json/urlencoded middlewares at server.js:67:9
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated undefined extended: provide extended option at ../node_modules/body-parser/index.js:105:29
+App running on port 80
+Waiting for db
+Connected to db
+
+
+
+
+After deletion of db pod:
+-----------------------------
+Replica set made sure that another db pod came up. No change in user voting app functionality.  But result app functionality not working. Voting went to initial state of 50:50 from 33.33:66.66 ratio. After this, even if voting app button flip-flops, result app is not reflecting it. But the below mentioned result pod logs shows that the socket conection to DB has been ended by other party.
+
+
+a) Voting pod logs:
+
+192.168.141.192 - - [14/Nov/2022:03:43:44 +0000] "POST / HTTP/1.1" 200 1696 "http://18.143.157.128:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+172.31.14.212 - - [14/Nov/2022:03:43:49 +0000] "POST / HTTP/1.1" 200 1696 "http://13.214.182.48:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.50.128 - - [14/Nov/2022:03:43:53 +0000] "POST / HTTP/1.1" 200 1696 "http://18.141.215.5:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+192.168.50.128 - - [14/Nov/2022:03:44:19 +0000] "POST / HTTP/1.1" 200 1696 "http://18.141.215.5:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+[2022-11-14 03:44:20 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:51)
+[2022-11-14 03:44:20 +0000] [51] [INFO] Worker exiting (pid: 51)
+[2022-11-14 03:44:21 +0000] [56] [INFO] Booting worker with pid: 56
+[2022-11-14 03:44:50 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:31)
+[2022-11-14 03:44:50 +0000] [31] [INFO] Worker exiting (pid: 31)
+[2022-11-14 03:44:50 +0000] [61] [INFO] Booting worker with pid: 61
+192.168.141.192 - - [14/Nov/2022:03:49:23 +0000] "POST / HTTP/1.1" 200 1696 "http://18.143.157.128:31006/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+
+
+
+b) Worker pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs worker-dd46d7584-x5pxx
+Connected to db
+Found redis at 10.97.145.193
+Connecting to redis
+Processing vote for 'b' by 'c3a943ef04361e7d'
+Processing vote for 'b' by '897d4ae9e583ddc3'
+Processing vote for 'b' by '47e415a026a655a8'
+Processing vote for 'a' by '47e415a026a655a8'
+Processing vote for 'a' by 'c3a943ef04361e7d'
+
+
+
+c) DB pod logs:
+
+PostgreSQL init process complete; ready for start up.
+
+LOG:  database system was shut down at 2022-11-14 03:42:34 UTC
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(47e415a026a655a8) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(c3a943ef04361e7d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+
+
+d) Result pod logs:
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs result-5d57b59f4b-8fz6w
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated bodyParser: use individual json/urlencoded middlewares at server.js:67:9
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated undefined extended: provide extended option at ../node_modules/body-parser/index.js:105:29
+App running on port 80
+Waiting for db
+Connected to db
+Error performing query: Error: This socket has been ended by the other party
+
+
+
+
+
+
+
+3. your comment on WHY result app STOPPED working after db pod stop:
+-----------------------------------------------------------------------
+
+Result app establishes synchronus socket conneciton to DB app. So when DB pod restarted, result app has still old socket and tryng to conect to old DB which doesn't exist. Hence it is not working as follows:
+
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl logs result-5d57b59f4b-8fz6w
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated bodyParser: use individual json/urlencoded middlewares at server.js:67:9
+Mon, 14 Nov 2022 02:38:23 GMT body-parser deprecated undefined extended: provide extended option at ../node_modules/body-parser/index.js:105:29
+App running on port 80
+Waiting for db
+Connected to db
+Error performing query: Error: This socket has been ended by the other party
+
+
+
+Worker app also has connection to DB app but the worker app logic handles reconection if old connection failed. Becaause of this, worker container is getting restarted, making new connection to DB app and push to DB working:
+
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+worker-dd46d7584-x5pxx    1/1     Running   1          102m
+
+
+
+
+
+
+3. your answer to HOW YOU MADE THE RESULT POD work.
+-----------------------------------------------------
+
+Current synchronous socket connection from result app to db app is problematic. Because of it's nature, it is not able to handle connection restart. As a permanent fix, the logic of result app has to be changed which will use asynchronous connection to DB app. As a part of this, any change in DB will be pushed to a Layer and whenever result app will make request, it will fetch data from layer and show it. But as a quick fix, will restart result app. It will reconnect to new DB and then it will start working. But becz of DB restart, old data in DB app are lost. So results will show new data from DB.
+
+
+
+[root@ip-172-31-10-212 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-2lnps        1/1     Running   0          127m
+redis-868d64d78-pwtj8     1/1     Running   0          3h11m
+result-5d57b59f4b-mbkwd   1/1     Running   0          60s
+vote-94849dc97-slpsn      1/1     Running   0          161m
+worker-dd46d7584-x5pxx    1/1     Running   1          144m
+
+
