@@ -33,6 +33,7 @@ kubectl logs result-5d57b59f4b-8fz6w
 kubectl get rs
 
 
+
 kubectl delete pod db-b54cd94f4-p82ch
 
 kubectl get po -o wide
